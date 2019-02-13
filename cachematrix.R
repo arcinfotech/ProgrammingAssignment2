@@ -16,7 +16,7 @@ makeCacheMatrix2<-function(x = matrix()) {
 
 
 ## This function computes the inverse of the special "matrix" returned by makeCacheMatrix above
-##  if the input is the same (inverse) then return the cached matrix else return the inverse
+##  if the input is the same as inverse, no change then return the cached matrix else return the inverse
 cacheSolve <- function(x, ...) {
   mrows <- nrow(x)
   mcols <- ncol(x)
@@ -24,14 +24,16 @@ i_matrix<- matrix(data = NA, nrow = mrows, ncol = mcols)
 i_matrix <- NULL
 
   if (is.matrix(x) ) {
+##compute the inverse for comparison with the input matrix
    cm <- makeCacheMatrix2(x)
    v_cm <- c(cm)
    v_x <- c(x)
-
+##check if input and inverse have not been changed
     if (!isTRUE(all.equal(v_x,v_cm))) {    
       i_matrix <- makeCacheMatrix2(v_x)
     }
     else 
+ ## Get cached matrix because input and inverse are the same.
       i_matrix<- o_matrix   
   }
   ##return inverse matrix
