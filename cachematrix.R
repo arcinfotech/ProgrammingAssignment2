@@ -1,41 +1,51 @@
 ## This function creates a special "matrix" object that can cache its inverse
-makeCacheMatrix2<-function(x = matrix()) {
-  mrows <- nrow(in_m)
-  mcols <- ncol(in_m)
-  im_vec <- c(x)
-  vlen <- length(im_vec)
-#create inverse of input matrix
-  inverse_v <- im_vec * t(im_vec)
-  i_matrix <- matrix(data = inverse_v, nrow = mrows, ncol = mcols)
+makeCacheMatrix<-function(x = matrix()) {
 
-#cache input matrix
-  o_matrix <<- i_matrix
-  return(o_matrix)
-}
+#function to cache 
+  m <- NULL
+  set <- function(y) {
+    x<<- y
+    m <<- NULL
+  }
+  
+#get cached
+  get <- function() x
+
+#create inverse matrix and cache
+  i_matrix <- solve(x)
+  setinverse <- function(i_matrix) m <<- i_matrix
+  getinverse <- function() m
+  list(set = set, get = get,
+       setinverse = setinverse,
+       getinverse = getinverse)
+ }
 
 
 
 ## This function computes the inverse of the special "matrix" returned by makeCacheMatrix above
-##  if the input is the same as inverse, no change then return the cached matrix else return the inverse
-cacheSolve <- function(x, ...) {
-  mrows <- nrow(x)
-  mcols <- ncol(x)
-i_matrix<- matrix(data = NA, nrow = mrows, ncol = mcols)
-i_matrix <- NULL
+## If the inverse has already been calculated (and the matrix has not changed), 
+##then cacheSolve should retrieve the inverse from the cache.
 
-  if (is.matrix(x) ) {
-##compute the inverse for comparison with the input matrix
-   cm <- makeCacheMatrix2(x)
-   v_cm <- c(cm)
-   v_x <- c(x)
-##check if input and inverse have not been changed
-    if (!isTRUE(all.equal(v_x,v_cm))) {    
-      i_matrix <- makeCacheMatrix2(v_x)
-    }
-    else 
- ## Get cached matrix because input and inverse are the same.
-      i_matrix<- o_matrix   
+cacheSolve <- function(x, ...) {
+##get cached matrix from function makeCacheMatrix
+  m <- x$getinverse()
+  if(!is.null(m)) {
+    message("getting cached data")
+    return(m)
   }
+ 
+#create inverse if matrices are not the same
+  if (!isTRUE(all.equal(x,m))) {    
+      m <- solve(x)
+  }
+#matrix unchanged returned the cached matrix
+    else 
+      i_matrix<- o_matrix   
+      data <- x$get()
+      m <- solve(data)
+      x$setinverse(m)
+      m  
+
   ##return inverse matrix
-  return(i_matrix)
+  return(m)
 }
